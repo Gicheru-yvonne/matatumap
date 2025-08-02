@@ -1,0 +1,88 @@
+.p-0  { padding: 0; }
+.p-1  { padding: 0.25rem; }
+.p-2  { padding: 0.5rem; }
+.p-3  { padding: 0.75rem; }
+.p-4  { padding: 1rem; }
+
+.pt-1 { padding-top: 0.25rem; }
+.pt-4 { padding-top: 1rem; }
+.pr-1 { padding-right: 0.25rem; }
+.pb-1 { padding-bottom: 0.25rem; }
+.pl-1 { padding-left: 0.25rem; }
+
+.m-0  { margin: 0; }
+.m-1  { margin: 0.25rem; }
+.m-2  { margin: 0.5rem; }
+.m-3  { margin: 0.75rem; }
+.m-4  { margin: 1rem; }
+
+.mt-1 { margin-top: 0.25rem; }
+.mt-4 { margin-top: 1rem; }
+.mb-1 { margin-bottom: 0.25rem; }
+.ml-1 { margin-left: 0.25rem; }
+.mr-1 { margin-right: 0.25rem; }
+
+.w-full { width: 100%; }
+
+@media (min-width: 640px) {
+    .sm\:p-1  { padding: 0.25rem; }
+    .sm\:p-2  { padding: 0.5rem; }
+    .sm\:p-3  { padding: 0.75rem; }
+    .sm\:p-4  { padding: 1rem; }
+
+    .sm\:pt-1 { padding-top: 0.25rem; }
+    .sm\:pt-4 { padding-top: 1rem; }
+
+    .sm\:m-0  { margin: 0; }
+    .sm\:m-1  { margin: 0.25rem; }
+    .sm\:m-2  { margin: 0.5rem; }
+    .sm\:m-3  { margin: 0.75rem; }
+    .sm\:m-4  { margin: 1rem; }
+
+    .sm\:mt-1 { margin-top: 0.25rem; }
+    .sm\:mt-4 { margin-top: 1rem; }
+
+    .sm\:w-full { width: 100%; }
+}
+
+@media (min-width: 768px) {
+    .md\:p-1  { padding: 0.25rem; }
+    .md\:p-2  { padding: 0.5rem; }
+    .md\:p-3  { padding: 0.75rem; }
+    .md\:p-4  { padding: 1rem; }
+
+    .md\:pt-1 { padding-top: 0.25rem; }
+    .md\:pt-4 { padding-top: 1rem; }
+
+    .md\:m-0  { margin: 0; }
+    .md\:m-1  { margin: 0.25rem; }
+    .md\:m-2  { margin: 0.5rem; }
+    .md\:m-3  { margin: 0.75rem; }
+    .md\:m-4  { margin: 1rem; }
+
+    .md\:mt-1 { margin-top: 0.25rem; }
+    .md\:mt-4 { margin-top: 1rem; }
+
+    .md\:w-full { width: 100%; }
+}
+
+@media (min-width: 1024px) {
+    .lg\:p-1  { padding: 0.25rem; }
+    .lg\:p-2  { padding: 0.5rem; }
+    .lg\:p-3  { padding: 0.75rem; }
+    .lg\:p-4  { padding: 1rem; }
+
+    .lg\:pt-1 { padding-top: 0.25rem; }
+    .lg\:pt-4 { padding-top: 1rem; }
+
+    .lg\:m-0  { margin: 0; }
+    .lg\:m-1  { margin: 0.25rem; }
+    .lg\:m-2  { margin: 0.5rem; }
+    .lg\:m-3  { margin: 0.75rem; }
+    .lg\:m-4  { margin: 1rem; }
+
+    .lg\:mt-1 { margin-top: 0.25rem; }
+    .lg\:mt-4 { margin-top: 1rem; }
+
+    .lg\:w-full { width: 100%; }
+}

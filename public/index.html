@@ -1,0 +1,39 @@
+<html lang="en">
+<head>
+  <title>Matatu App | Home</title>
+  <link rel="stylesheet" href="/stylesheets/utilities/_base.css">
+  <link rel="stylesheet" href="/stylesheets/utilities/_border.css">
+  <link rel="stylesheet" href="/stylesheets/utilities/_colors.css">
+  <link rel="stylesheet" href="/stylesheets/utilities/_dimensions.css">
+  <link rel="stylesheet" href="/stylesheets/utilities/_flex.css">
+  <link rel="stylesheet" href="/stylesheets/utilities/_layout.css">
+  <link rel="stylesheet" href="/stylesheets/utilities/_spacing.css">
+  <link rel="stylesheet" href="/stylesheets/utilities/_typography.css">
+
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+<main class="main">
+  <section class="landing-brand"></section>
+  <section class="landing-content">
+    <h1 class="landing-title text-color-white-sm">Find Your Way Around Matatu Stops</h1>
+    <div>
+      <h3 class="text-center text-color-white-sm">Where do you want to go?</h3>
+      <div class="destination-search">
+        <form action="/search-results" method="get">
+          <label hidden="hidden" for="search-destination"></label>
+          <input class="search" id="search-destination" type="text" name="search-destination" placeholder="" />
+          <div class="form-footer" style="padding-top: 1rem;">
+            <button class="btn btn-primary">
+              Search
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+
+</html> 

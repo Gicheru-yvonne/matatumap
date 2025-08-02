@@ -1,0 +1,41 @@
+.card {
+    /*width: 100%;*/
+    /*max-width: 400px;*/
+    margin: 10px auto;
+    padding: 20px;
+    border: 1px solid #F5F5F5;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card.highlight {
+    border: 1px solid #4CAF83;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.destination-details {
+    padding-left: 0.4rem;
+}
+
+.destination-route-no-value {
+}
+
+.destination-sacco {
+    font-size: var(--font18);
+    font-weight: 600;
+}
+
+.card-mt {
+    margin-top: calc(10px + 18px);
+}
+
+@media screen and (max-width: 768px) {
+    main {
+        /*position: relative;*/
+        display: block;
+        /*flex-direction: column;*/
+        height: 50%;
+        width: 100%;
+    }
+}

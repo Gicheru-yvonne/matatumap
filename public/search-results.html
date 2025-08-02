@@ -1,0 +1,191 @@
+<html lang="en">
+<head>
+    <title>Matatu App | Search Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/utilities/_base.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_border.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_colors.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_dimensions.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_flex.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_layout.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_spacing.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_typography.css">
+
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/search-results.css">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+</head>
+
+<body>
+<main class="main results">
+    <section class="map" id="map" style="height: 90vh;">
+    </section>
+    <section class="cta">
+        <form action="/search-results" method="get">
+            <label hidden="hidden" for="search-destination"></label>
+            <input class="search" id="search-destination" type="text" name="search-destination" placeholder=""/>
+        </form>
+        <div>
+            <div class="card" id="route-card-1">
+                <div class="card-body">
+                    <div class="flex flex-col">
+                        <div class="flex justify-between">
+                            <div class="flex items-center">
+                                <div class="icon">
+                                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"
+                                         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                        <rect width="40" height="40" fill="url(#pattern0_455_44)"/>
+                                        <defs>
+                                            <pattern id="pattern0_455_44" patternContentUnits="objectBoundingBox"
+                                                     width="1" height="1">
+                                                <use xlink:href="#image0_455_44" transform="scale(0.0111111)"/>
+                                            </pattern>
+                                            <image id="image0_455_44" width="90" height="90" preserveAspectRatio="none"
+                                                   xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFoAAABaCAYAAAA4qEECAAAACXBIWXMAAAsTAAALEwEAmpwYAAAD6ElEQVR4nO2dvWsUQRjGp1EDimjnN2IlGDQg+FHZpPWjSSOBk8s8z96eXrRQz1LwH4haGbFIay+KH01AgyDESiM2mlgLiRENRE5emUCiySVnZmd2794fTBN2Z5753buzm+xmzxhFURRFURRFUZROgOQ+kjWSTwBMkJwl2ShIm3WZJfulNE33mryRJMluAPdIzudAWMNHA/CL5MMkSfabPEDyHIBvscUwuzYD4ExUyQAuu08+toxGgOoejFnJbS+Zi2QHr2xr7Z42Xy4aK7SZcrm8K5hokg88hJ4DcD1EcBmDZF3G9JD7vgl4Cefj6qIeJPDS7HUPuefliA4RdtDTYbjTBKZare7wlP1i5mEBPPYRthxyrVu6hKw7O4BHmYcl+cFTVdQzD/tv9hueRE+ECDvjSfScyC7gyVDaTAjRPoI2it5UNFV0I3YVakUzvjhdOhhfqq7R7EDRpk2hig6Dig6Eig6Eig6Eig6Eig6Eig6Eig6Eig6Eig6Eig6Eig6Eig6Eig6Eiu5U0f39/ZtNm1GtVrfkTjTJ06bNSJLkbB5Ff6pUKt2mTahUKt0kP+dR9MKT8WPyaCvJa1IRErhUKm0zOUWyWWsPyUPmAK66/8V5udpD9pkHW8cNze8k35N8AWCE5G0AN0leIVmSDwXAKWvtUZIH0zQ9IE2eAE3TdLu0UqnUtUhQ18LP3TZ/tpd9pQ/pS/q01l6QMdxYMuYIgOck37lMxbo522nNqGiqaOagErWiGV+eLh2ML1bXaKro6FVHrWhGF6VLB+NLLMoa/YPkUJIkx+QvetJIHne/lf2MLchXztiipwYGBg6vtG+SJEdkmxxIXndOkzXNKqRZ+MWTiFzZXnKarGkygaG19gHgTkTRXnKarFlpYFnr1tqHtfZELNG+cpqsWWlgue3j4xYRM26+cpqs8TGBWq22tQiim+U0WaNLB+OKluvPFvq4G6uifeX8b4EtDL7swHIpJJdEq+1vre3x+JaBlpuvnCZrVpnIVLNJWGt7AHyJWM3ecpqsWUvFyPWnXBrJiceduU+6wzBaJfvOGV10pzSjoqmimYNK1IpmfHm6dDC+WF2jqaKjVx07qaIBfI0tJYuMuRPt9tkgL/mTOxsAekmedy/5vkVyWF7xTvIZyVGSb0h+BDApAha16WUETf+1zaTs6/oYBfDU9T0sY8mYbuxeySLvR5Vs/zuvTGnlvdEiwhQE5G1eAF638MmPmYKAvM2rldcay9dsmILAvM2rVqttAvB2DYHG+/r6NpqCUMvjvNw7/puFGpfvZjEFw+ZxXlIB7luExuRE4torOayKVMmdMi9FURRFUUyH8BvshjJJgVod0wAAAABJRU5ErkJggg=="/>
+                                        </defs>
+                                    </svg>
+                                </div>
+                                <div class="destination-sacco">
+                                    <p class="font-semibold text-lg">Lopha Travels</p>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="destination-price">
+                                    <p class="price text-color-primary font-semibold text-lg">
+                                        Ksh. 60
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="destination-details">
+                                <p class="font-normal text-lg">Agha Khan, Muthaiga, UNEP</p>
+                            </div>
+                            <div class="destination-route-no">
+                                <span class="destination-route-no-value font-normal text-lg rounded-pill bg-gray-light p-4">107D</span>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button class="btn btn-primary w-full view-route-btn" data-target="route-card-1">
+                                View Route
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card card-mt" id="route-card-2">
+                <div class="card-body">
+                    <div class="flex flex-col">
+                        <div class="flex justify-between">
+                            <div class="flex items-center">
+                                <div class="icon">
+                                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"
+                                         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                        <rect width="40" height="40" fill="url(#pattern0_455_44)"/>
+                                        <defs>
+                                            <pattern id="pattern0_455_44" patternContentUnits="objectBoundingBox"
+                                                     width="1" height="1">
+                                                <use xlink:href="#image0_455_44" transform="scale(0.0111111)"/>
+                                            </pattern>
+                                            <image id="image0_455_44" width="90" height="90" preserveAspectRatio="none"
+                                                   xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFoAAABaCAYAAAA4qEECAAAACXBIWXMAAAsTAAALEwEAmpwYAAAD6ElEQVR4nO2dvWsUQRjGp1EDimjnN2IlGDQg+FHZpPWjSSOBk8s8z96eXrRQz1LwH4haGbFIay+KH01AgyDESiM2mlgLiRENRE5emUCiySVnZmd2794fTBN2Z5753buzm+xmzxhFURRFURRFUZROgOQ+kjWSTwBMkJwl2ShIm3WZJfulNE33mryRJMluAPdIzudAWMNHA/CL5MMkSfabPEDyHIBvscUwuzYD4ExUyQAuu08+toxGgOoejFnJbS+Zi2QHr2xr7Z42Xy4aK7SZcrm8K5hokg88hJ4DcD1EcBmDZF3G9JD7vgl4Cefj6qIeJPDS7HUPuefliA4RdtDTYbjTBKZare7wlP1i5mEBPPYRthxyrVu6hKw7O4BHmYcl+cFTVdQzD/tv9hueRE+ECDvjSfScyC7gyVDaTAjRPoI2it5UNFV0I3YVakUzvjhdOhhfqq7R7EDRpk2hig6Dig6Eig6Eig6Eig6Eig6Eig6Eig6Eig6Eig6Eig6Eig6Eig6Eig6Eiu5U0f39/ZtNm1GtVrfkTjTJ06bNSJLkbB5Ff6pUKt2mTahUKt0kP+dR9MKT8WPyaCvJa1IRErhUKm0zOUWyWWsPyUPmAK66/8V5udpD9pkHW8cNze8k35N8AWCE5G0AN0leIVmSDwXAKWvtUZIH0zQ9IE2eAE3TdLu0UqnUtUhQ18LP3TZ/tpd9pQ/pS/q01l6QMdxYMuYIgOck37lMxbo522nNqGiqaOagErWiGV+eLh2ML1bXaKro6FVHrWhGF6VLB+NLLMoa/YPkUJIkx+QvetJIHne/lf2MLchXztiipwYGBg6vtG+SJEdkmxxIXndOkzXNKqRZ+MWTiFzZXnKarGkygaG19gHgTkTRXnKarFlpYFnr1tqHtfZELNG+cpqsWWlgue3j4xYRM26+cpqs8TGBWq22tQiim+U0WaNLB+OKluvPFvq4G6uifeX8b4EtDL7swHIpJJdEq+1vre3x+JaBlpuvnCZrVpnIVLNJWGt7AHyJWM3ecpqsWUvFyPWnXBrJiceduU+6wzBaJfvOGV10pzSjoqmimYNK1IpmfHm6dDC+WF2jqaKjVx07qaIBfI0tJYuMuRPt9tkgL/mTOxsAekmedy/5vkVyWF7xTvIZyVGSb0h+BDApAha16WUETf+1zaTs6/oYBfDU9T0sY8mYbuxeySLvR5Vs/zuvTGnlvdEiwhQE5G1eAF638MmPmYKAvM2rldcay9dsmILAvM2rVqttAvB2DYHG+/r6NpqCUMvjvNw7/puFGpfvZjEFw+ZxXlIB7luExuRE4torOayKVMmdMi9FURRFUUyH8BvshjJJgVod0wAAAABJRU5ErkJggg=="/>
+                                        </defs>
+                                    </svg>
+                                </div>
+                                <div class="destination-sacco">
+                                    <p class="font-semibold text-lg">Lopha Travels</p>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="destination-price">
+                                    <p class="price text-color-primary font-semibold text-lg">
+                                        Ksh. 60
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="destination-details">
+                                <p class="font-normal text-lg">Agha Khan, Muthaiga, UNEP</p>
+                            </div>
+                            <div class="destination-route-no">
+                                <span class="destination-route-no-value font-normal text-lg rounded-pill bg-gray-light p-4">107D</span>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button class="btn btn-primary w-full view-route-btn" data-target="route-card-2">
+                                View Route
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<script src="javascript/search-results.js"></script>
+<script>
+    const map = L.map('map').setView([-0.4194, 36.9476], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const startPoint = L.latLng(-0.4194, 36.9476);
+
+    let routingControl = null;
+
+    const destinations = {
+        "Muthaiga": L.latLng(-0.2846, 36.8816)
+    };
+
+    document.getElementById('destination').addEventListener('change', function () {
+        const place = this.value.trim();
+
+        if (destinations[place]) {
+            if (routingControl) {
+                map.removeControl(routingControl);
+            }
+
+            routingControl = L.Routing.control({
+                waypoints: [
+                    startPoint,
+                    destinations[place]
+                ],
+                routeWhileDragging: false,
+                showAlternatives: false,
+                lineOptions: {
+                    styles: [{color: 'blue', opacity: 0.8, weight: 6}]
+                },
+                createMarker: function () {
+                    return null;
+                }
+            }).addTo(map);
+        } else {
+            alert("Destination not found.");
+        }
+    });
+</script>
+<script>
+    const buttons = document.querySelectorAll('.view-route-btn');
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.remove('highlight');
+            });
+
+            const targetId = button.getAttribute('data-target');
+            const card = document.getElementById(targetId);
+            card.classList.add('highlight');
+        });
+    });
+</script>
+</body>
+</html>

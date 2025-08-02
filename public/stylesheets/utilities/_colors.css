@@ -1,0 +1,9 @@
+.text-color-primary {
+    color: var(--primary-color);
+}
+
+.text-color-white {
+    color: var(--color-white);
+}
+
+.bg-gray-light { background-color: #D9D9D9; }
