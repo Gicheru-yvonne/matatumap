@@ -1,6 +1,24 @@
+main {
+    display: flex;
+    flex-direction: column;
+}
+
+#map {
+    height: 50vh;
+    z-index: 1;
+}
+
+.cta {
+    padding-top: 1rem;
+    z-index: 2;
+    height: 50vh;
+    overflow-y: scroll;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding-bottom: 2rem;
+}
+
 .card {
-    /*width: 100%;*/
-    /*max-width: 400px;*/
     margin: 10px auto;
     padding: 20px;
     border: 1px solid #F5F5F5;
@@ -9,16 +27,19 @@
 }
 
 .card.highlight {
-    border: 1px solid #4CAF83;
+    border: 1px solid var(--primary-color);
+    border-top: 4px solid var(--primary-color);
     color: white;
     transition: background-color 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
+}
+
+.card-mt {
+    margin-top: calc(10px + 18px);
 }
 
 .destination-details {
     padding-left: 0.4rem;
-}
-
-.destination-route-no-value {
 }
 
 .destination-sacco {
@@ -26,16 +47,91 @@
     font-weight: 600;
 }
 
-.card-mt {
-    margin-top: calc(10px + 18px);
+.loader {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    background: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    z-index: 1000;
 }
 
-@media screen and (max-width: 768px) {
+.input-container {
+    position: relative;
+    margin: 0 auto;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    background: #E0E0E0;
+    /*box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);*/
+    overflow: hidden;
+}
+
+.back-arrow {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    border: none;
+    background: transparent;
+}
+
+.back-arrow svg {
+    width: 20px;
+    height: 20px;
+    stroke: #333;
+    stroke-width: 2;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    margin-right: 8px;
+    padding: 12px 16px;
+    font-size: 16px;
+    color: #333;
+    background: white;
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+.input-wrapper.with-separator .back-arrow {
+    border-right: 1px solid #e9ecef;
+}
+
+#results-container,
+.input-container {
+    padding: 0 20px;
+}
+
+
+@media screen and (min-width: 768px) {
     main {
-        /*position: relative;*/
-        display: block;
-        /*flex-direction: column;*/
-        height: 50%;
-        width: 100%;
+        flex-direction: row;
+    }
+
+    #map {
+        height: 100vh;
+        flex: 1;
+    }
+
+    .cta {
+        padding: 34px 47px;
+        height: 100vh;
+        flex: 1;
+    }
+
+    .landing-subtitle {
+        color: var(--color-black);
     }
 }
