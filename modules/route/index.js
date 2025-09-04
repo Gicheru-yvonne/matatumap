@@ -5,13 +5,12 @@ async function routeDetails({ saccoId, route }) {
         const query = `
             SELECT
             ST_AsGeoJSON(R.geom) AS geometry,
-            S."sacco name" AS "SaccoName",
-            S."_gps location_latitude" AS "SaccoLatitude",
-            S."_gps location_longitude" AS "SaccoLongitude",
+            S."sacco_name" AS "SaccoName",
+            S."gps_location_latitude" AS "SaccoLatitude",
+            S."gps_location_longitude" AS "SaccoLongitude",
             R.route_name AS "RouteName"
             FROM "Route" R
-            JOIN "SaccosRoutes" SR ON R.route_name = SR.route_name
-            JOIN "Sacco" S ON SR.sacco_id = S.id
+            JOIN "Sacco" S ON S.route_name = R.route_name
             WHERE R.route_name = $1
             AND S.id = $2
         `;

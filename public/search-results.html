@@ -32,7 +32,7 @@
     <section class="map" id="map">
     </section>
     <section class="cta" id="cta">
-        <form action="/search-results" method="get">
+        <form class="pt-4" action="/search-results" method="get">
             <div class="input-container">
                 <div class="input-wrapper">
                     <button class="back-arrow" type="button" onclick="handleBackClick()" title="Go back">
@@ -54,8 +54,22 @@
         <div id="results-container">
         </div>
     </section>
+    <div id="stopMovedModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" id="closeStopMovedModal">&times;</span>
+            <h2>Select New Stop Location</h2>
+
+            <div id="stopMovedMap" class="modal-map"></div>
+            <input type="hidden" id="newStopLat">
+            <input type="hidden" id="newStopLng">
+
+            <div class="modal-actions pt-4">
+                <button class="btn btn-primary" id="submitStopMoved">Submit</button>
+            </div>
+        </div>
+    </div>
 </main>
-<script src="javascript/search-results.js"></script>
+<script src="javascripts/search-results.js"></script>
 <script>
     function handleBackClick() {
         window.location.href = '/';

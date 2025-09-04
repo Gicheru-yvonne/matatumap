@@ -1,8 +1,16 @@
 :root {
-    --color: #333333;
+    --color-black: #333333;
     --color-white: #FFFFFF;
     --font18: 18px;
     --font-semibold: 600;
     --font-regular: 400;
     --primary-color: #007BFF;
+    --success-color: #28A745;
+    --danger-color: #DC3545;
+
+    --warning-color: #ffc107;
+    --light-gray: #f8f9fa;
+    --border-color: #e9ecef;
+    --text-color: #333;
+    --text-muted: #666;
 }

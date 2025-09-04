@@ -1,42 +1,140 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Matatu App | Home</title>
-  <link rel="stylesheet" href="/stylesheets/utilities/_base.css">
-  <link rel="stylesheet" href="/stylesheets/utilities/_border.css">
-  <link rel="stylesheet" href="/stylesheets/utilities/_colors.css">
-  <link rel="stylesheet" href="/stylesheets/utilities/_dimensions.css">
-  <link rel="stylesheet" href="/stylesheets/utilities/_flex.css">
-  <link rel="stylesheet" href="/stylesheets/utilities/_layout.css">
-  <link rel="stylesheet" href="/stylesheets/utilities/_spacing.css">
-  <link rel="stylesheet" href="/stylesheets/utilities/_typography.css">
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Matatu App | Home</title>
+    <link rel="stylesheet" href="/stylesheets/utilities/_base.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_border.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_colors.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_dimensions.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_flex.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_layout.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_spacing.css">
+    <link rel="stylesheet" href="/stylesheets/utilities/_typography.css">
 
-  <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/index.css">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 
 <body>
 <main class="main">
-  <section class="landing-brand"></section>
-  <section class="landing-content">
-    <h1 class="landing-title text-color-white">Find Your Way Around Matatu Stops</h1>
-    <div>
-      <h3 class="landing-subtitle text-center text-color-white font-semibold">Where do you want to go?</h3>
-      <div class="destination-search">
-        <form action="/search-results" method="get">
-          <label hidden="hidden" for="search-destination"></label>
-          <input class="search" id="search-destination" type="text" name="search-destination" placeholder="" />
-          <div class="form-footer" style="padding-top: 1rem;">
-            <button class="btn btn-primary">
-              Search
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </section>
+    <section class="landing-brand"></section>
+    <section class="landing-content">
+        <h1 class="landing-title text-color-white">Find Your Way Around Matatu Stops</h1>
+        <div>
+            <h3 class="landing-subtitle text-center text-color-white font-semibold">Where do you want to go?</h3>
+            <div class="destination-search">
+                <form action="/search-results" method="get">
+                    <label hidden="hidden" for="search-destination"></label>
+                    <input class="search" id="search-destination" type="text" name="search-destination" placeholder=""/>
+                    <div class="form-footer" style="padding-top: 1rem;">
+                        <button class="btn btn-primary">
+                            Search
+                        </button>
+                        <button class="btn btn-success" type="button" onclick="openModal()">
+                            Report an Issue
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 class="modal-title">Report an Issue</h2>
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="success-message" id="successMessage">
+                        Issue reported successfully! We'll look into it.
+                    </div>
+
+                    <form id="issueForm">
+                        <div class="form-group">
+                            <label class="form-label" for="issueType">Issue Type</label>
+                            <select class="form-select" id="issueType" name="issueType" required>
+                                <option value="">Select an issue type</option>
+                                <option value="matatu-full">Matatu is Full</option>
+                                <option value="fare-change">Fare Has Changed</option>
+                                <option value="stop-moved">Stop has moved</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="sacco">Sacco/Route</label>
+                            <select class="form-select" id="sacco" name="sacco" required>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="fareChangeGroup" style="display: none;">
+                            <label class="form-label" for="fareChange">New Fare(KSH)</label>
+                            <input
+                                    type="text"
+                                    class="form-input"
+                                    id="fareChange"
+                                    name="fareChange"
+                                    placeholder="Enter new fare"
+                            />
+                        </div>
+
+                        <div class="form-group" id="stopLocationGroup" style="display: none;">
+                            <label class="form-label" for="stopLocation">New Stop Location</label>
+                            <p class="map-instruction">Click on the map to select the new location of the stop:</p>
+                            <div id="map" class="location-map"></div>
+                            <input type="hidden" id="selectedLatitude" name="selectedLatitude">
+                            <input type="hidden" id="selectedLongitude" name="selectedLongitude">
+                            <div id="selectedLocationInfo" class="selected-location" style="display: none;">
+                                <small>Selected location: <span id="locationCoords"></span></small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="details">Additional Details (Optional)</label>
+                            <textarea
+                                    class="form-textarea"
+                                    id="details"
+                                    name="details"
+                                    placeholder="Provide more details about the issue..."
+                                    rows="4"
+                            ></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="contact">Your Contact (Optional)</label>
+                            <input
+                                    type="tel"
+                                    class="form-input"
+                                    id="contact"
+                                    name="contact"
+                                    placeholder="Phone number for follow-up"
+                            >
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="issue-submit-btn" onclick="submitReport()">Submit Report</button>
+                </div>
+            </div>
+        </div>
+    </section>
 </main>
+<script src="javascripts/index.js"></script>
+<script>
+</script>
 </body>
 
 </html>

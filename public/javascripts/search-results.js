@@ -1,9 +1,25 @@
 let map = null;
 
+let stopMovedMap = null;
+let stopMovedMarker = null;
+let currentStopMovedSacco = null;
+
+let greenIcon = null;
+let saccoMarker;
+
 let isLoading = false;
 let searchResults = [];
 
 function initializeMap() {
+    greenIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
     if (!map) {
         map = L.map('map').setView([-1.281230001797726, 36.82260458114266], 16);
 
@@ -39,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function searchDestinations(destination) {
     axios.get(`/api/destination?search=${destination}`)
         .then(response => {
+            searchResults = [];
             for (let result of response.data.destinations) {
                 searchResults.push(result);
             }
@@ -55,19 +72,6 @@ function searchDestinations(destination) {
 }
 
 function updateLoadingState() {
-    // const mapSection = document.getElementById('map');
-    // const ctaSection = document.getElementById('cta');
-
-    // if (isLoading) {
-    //     loader.style.display = 'block';
-    //     mapSection.style.display = 'none';
-    //     ctaSection.style.display = 'none';
-    // } else {
-    //     // Hide loader and overlay, show content
-    //     loader.style.display = 'none';
-    //     mapSection.style.display = 'block';
-    //     ctaSection.style.display = 'block';
-    // }
 }
 
 function renderDataToUi(results) {
@@ -124,25 +128,176 @@ function renderDataToUi(results) {
                         <div class="flex justify-between items-center">
                             <div class="destination-details">
                                 <p class="font-normal text-sm">${destination.DestinationServed}</p>
+                                
+                                <div class="status-row">
+                                    ${destination.Issues.length === 0 ? '<span class="status-badge status-available">Available</span>' : '<span></span>'}
+                                    ${destination.Issues.length >= 1 ? `<span class="status-badge status-${destination.Issues[0].IssueType}">${toTitleCase(destination.Issues[0].IssueType)}</span>` : '<span></span>'}
+                                    ${destination.Issues.length >= 1 && destination.Issues[0].IssueUpdatedAt ? `<span class="status-badge status-updated">Updated ${timeAgo(destination.Issues[0].IssueUpdatedAt)}</span>` : '<span></span>'}
+                                 </div>
                             </div>
+                            
                             <div class="destination-route-no">
-                                <span class="destination-route-no-value font-normal text-lg rounded-pill bg-gray-light p-4">${destination.RouteName}</span>
+                                <span class="destination-route-no-value font-normal text-sm rounded-pill bg-gray-light p-4">${destination.RouteName}</span>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <button class="btn btn-primary w-full view-route-btn" data-route="route-${destination.RouteName}" data-sacco="sacco-${destination.SaccoId}" data-card-id="route-card-${index}" id="view-route-btn-${index}" data-btn-id="view-route-btn-${index}">
-                                View Route
-                            </button>
+                            <div class="action-buttons flex flex-col">
+                                <div class="flex">
+                                    <button class="btn btn-outline report-issue-btn" data-issue-type="matatu-full" data-sacco-id=${destination.SaccoId} data-sacco-name=${destination.SaccoName} data-route-name=${destination.RouteName}>Report Full</button>
+                                    <button class="btn btn-outline report-issue-btn" data-issue-type="fare-change" data-sacco-id=${destination.SaccoId} data-sacco-name=${destination.SaccoName} data-route-name=${destination.RouteName}>Fare Change</button>
+                                    <button class="btn btn-warning report-issue-btn" data-issue-type="stop-moved" data-sacco-id=${destination.SaccoId} data-latitude=${destination.gps_location_latitude} data-longitude=${destination.gps_location_longitude} data-sacco-name=${destination.SaccoName} data-route-name=${destination.RouteName}>Stop Moved</button>
+                                    <button class="share-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="18" cy="5" r="3"/>
+                                            <circle cx="6" cy="12" r="3"/>
+                                            <circle cx="18" cy="19" r="3"/>
+                                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary w-full view-route-btn" data-route="route-${destination.RouteName}" data-sacco="sacco-${destination.SaccoId}" data-card-id="route-card-${index}" id="view-route-btn-${index}" data-btn-id="view-route-btn-${index}">
+                                        View Route
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
         `;
 
         resultsContainer.innerHTML += destinationHtml;
     });
 
     addViewRouteListeners();
+
+    document.querySelectorAll('.report-issue-btn').forEach(btn => {
+        btn.addEventListener('click', async function () {
+            const issueType = this.dataset.issueType;
+            const saccoId = this.dataset.saccoId;
+            const latitude = this.dataset.latitude;
+            const longitude = this.dataset.longitude;
+            const routeName = this.dataset.longitude;
+
+            // Build formData directly from dataset
+            const formData = {
+                issueType,
+                sacco: saccoId,
+                userAgent: navigator.userAgent,
+            };
+
+            // For issue types that need extra input, you can still prompt
+            if (issueType === 'fare-change') {
+                const fare = prompt("Enter new fare (KSH):");
+                if (!fare || isNaN(parseFloat(fare))) {
+                    alert("Invalid fare entered.");
+                    return;
+                }
+                formData.fareChange = fare;
+            }
+
+            if (issueType === 'stop-moved') {
+                openStopMovedModal(saccoId, latitude, longitude);
+                return;
+            }
+
+            try {
+                const response = await axios.post('/api/report-issue', formData, {
+                    headers: {'Content-Type': 'application/json'},
+                });
+
+                if (response.data.success) {
+                    alert("Issue reported successfully!");
+
+                    refetchData(saccoId, routeName)
+                } else {
+                    alert(response.data.message || "Failed to report issue.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Something went wrong while submitting.");
+            }
+        });
+    });
+
+
+    document.querySelectorAll('.share-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+
+                showSuccessMessage('Link copied to clipboard!');
+
+            } catch (err) {
+                console.error('Failed to copy to clipboard:', err);
+
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = window.location.href;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+
+                    showSuccessMessage('Link copied to clipboard!');
+                } catch (fallbackErr) {
+                    console.error('Fallback copy failed:', fallbackErr);
+                    alert('Could not copy link to clipboard');
+                }
+            }
+        });
+    });
+
+    document.getElementById('submitStopMoved').addEventListener('click', async () => {
+        const element = document.querySelectorAll('.report-issue-btn')?.[0];
+
+        if (!element) {
+            alert("Please select a stop moved issue.");
+            return;
+        }
+
+        const routeName = element.dataset.routeName;
+        const saccoId = element.dataset.saccoId;
+
+        const lat = document.getElementById('newStopLat').value;
+        const lng = document.getElementById('newStopLng').value;
+
+        if (!lat || !lng) {
+            alert("Please select a new stop location on the map.");
+            return;
+        }
+
+        const formData = {
+            issueType: 'stop-moved',
+            sacco: currentStopMovedSacco,
+            selectedLatitude: lat,
+            selectedLongitude: lng,
+            userAgent: navigator.userAgent,
+        };
+
+        try {
+            const response = await axios.post('/api/report-issue', formData, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.data.success) {
+                alert("Stop moved issue reported successfully!");
+                closeStopMovedModal();
+
+                refetchData();
+            } else {
+                alert(response.data.message || "Failed to submit issue.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Error submitting stop-moved issue.");
+        }
+    });
+
+    document.getElementById('closeStopMovedModal').addEventListener('click', closeStopMovedModal);
 }
 
 function addViewRouteListeners() {
@@ -156,7 +311,7 @@ function addViewRouteListeners() {
 
             const routeData = this.getAttribute('data-route');
             const saccoData = this.getAttribute('data-sacco');
-            const route = +routeData.split('-')[1];
+            const route = routeData.split('-')[1];
             const saccoId = saccoData.split('-')[1];
 
             fetchRouteDetails(saccoId, route, buttonId)
@@ -363,30 +518,25 @@ function mapRouteDetailsToUi(routeDetails) {
             </div>
         `).openPopup();
 
-        // Set appropriate map view
         if (routeLayer && allSegments.length > 0) {
             const bounds = L.latLngBounds();
 
-            // Add all route segment points
             allSegments.forEach(segment => {
                 segment.forEach(point => {
                     bounds.extend(point);
                 });
             });
 
-            // Add sacco location
             bounds.extend([saccoLatitude, saccoLongitude]);
 
-            // Fit map to bounds
             mapInstance.fitBounds(bounds, {
-                padding: [40, 40], // Slightly more padding
+                padding: [40, 40],
                 maxZoom: 22
             });
         } else {
             mapInstance.setView([saccoLatitude, saccoLongitude], 16);
         }
 
-        // Store references for later use
         mapInstance.currentRoute = {
             routeLayer,
             saccoMarker,
@@ -408,4 +558,147 @@ function clearMapLayers(mapInstance) {
             mapInstance.removeLayer(layer);
         }
     });
+}
+
+function timeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    let interval = Math.floor(seconds / 31536000);
+    if (interval >= 1) return interval + " year" + (interval > 1 ? "s" : "") + " ago";
+
+    interval = Math.floor(seconds / 2592000);
+    if (interval >= 1) return interval + " month" + (interval > 1 ? "s" : "") + " ago";
+
+    interval = Math.floor(seconds / 86400);
+    if (interval >= 1) return interval + " day" + (interval > 1 ? "s" : "") + " ago";
+
+    interval = Math.floor(seconds / 3600);
+    if (interval >= 1) return interval + " hour" + (interval > 1 ? "s" : "") + " ago";
+
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1) return interval + " minute" + (interval > 1 ? "s" : "") + " ago";
+
+    return "just now";
+}
+
+function toTitleCase(str) {
+    return str
+        .replace(/-/g, " ") // replace dashes with spaces
+        .split(" ")         // split into words
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize first letter
+        .join(" ");         // join back
+}
+
+function openStopMovedModal(saccoId, latitude, longitude) {
+    currentStopMovedSacco = saccoId;
+    const modal = document.getElementById('stopMovedModal');
+    modal.style.display = 'block';
+
+    if (!stopMovedMap) {
+        stopMovedMap = L.map('stopMovedMap').setView([latitude, longitude], 16);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(stopMovedMap);
+
+        if (saccoMarker) {
+            stopMovedMap.removeLayer(saccoMarker);
+        }
+
+        saccoMarker = L.marker([latitude, longitude], { icon: greenIcon }).addTo(stopMovedMap);
+
+        stopMovedMap.on('click', function (e) {
+            const {lat, lng} = e.latlng;
+
+            if (stopMovedMarker) {
+                stopMovedMap.removeLayer(stopMovedMarker);
+            }
+
+            // New marker (draggable)
+            stopMovedMarker = L.marker([lat, lng], {draggable: true})
+                .addTo(stopMovedMap)
+                .bindPopup("New Stop")
+                .openPopup();
+
+            // Set hidden input values
+            document.getElementById('newStopLat').value = lat;
+            document.getElementById('newStopLng').value = lng;
+
+            stopMovedMarker.on('dragend', function (event) {
+                const pos = event.target.getLatLng();
+                document.getElementById('newStopLat').value = pos.lat;
+                document.getElementById('newStopLng').value = pos.lng;
+            });
+        });
+    }
+
+    // Ensure the map resizes correctly when modal opens
+    setTimeout(() => stopMovedMap.invalidateSize(), 200);
+}
+
+function closeStopMovedModal() {
+    document.getElementById('stopMovedModal').style.display = 'none';
+}
+
+async function refetchData() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchDestination = urlParams.get('search-destination');
+
+    if (!searchDestination) {
+        isLoading = false;
+        return;
+    }
+
+    const searchInput = document.getElementById('search-destination');
+    searchInput.value = searchDestination;
+
+    const resultsContainer = document.getElementById('results');
+    if (resultsContainer) {
+        resultsContainer.innerHTML = '';
+    }
+
+    await searchDestinations(searchDestination);
+}
+
+function showSuccessMessage(message) {
+    const notification = document.createElement('div');
+    notification.className = 'success-notification';
+    notification.textContent = message;
+
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #10b981;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        font-weight: 500;
+        font-size: 14px;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: all 0.3s ease;
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateY(0)';
+    }, 10);
+
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(-20px)';
+
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
 }
