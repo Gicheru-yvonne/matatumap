@@ -38,7 +38,7 @@ Before setting up the project, ensure you have the following installed:
 
    In the PostgreSQL prompt, create a user:
    ```sql
-   CREATE USER matatumap WITH SUPERUSER CREATEDB LOGIN PASSWORD 'matatumap';
+   CREATE USER matatumap WITH SUPERUSER CREATEDB LOGIN PASSWORD '';
    ```
 
    Create the database:
@@ -72,7 +72,7 @@ const dbConfig = {
   port: 5432,
   database: 'matatumap',
   user: 'matatumap',
-  password: 'matatumap'
+  password: ''
 }
 ```
 
